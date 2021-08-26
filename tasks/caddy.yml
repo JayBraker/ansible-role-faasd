@@ -1,0 +1,101 @@
+---
+- name: create caddy group
+  ansible.builtin.group:
+    system: yes
+    name: "{{ faasd_caddy_user }}"
+
+- name: create caddy user
+  ansible.builtin.user:
+    name: "{{ faasd_caddy_user }}"
+    group: "{{ faasd_caddy_user }}"
+    home: /var/lib/caddy
+    shell: /bin/false
+    system: yes
+
+- name: create folders
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ faasd_caddy_user }}"
+    group: "{{ faasd_caddy_user }}"
+  loop:
+    - /etc/caddy
+    - /var/lib/caddy
+
+- name: updating caddy
+  block:
+    - name: install golang
+      unarchive:
+        src: "https://golang.org/dl/go1.16.4.linux-{{ faasd_golang_suffix }}.tar.gz"
+        dest: /usr/local
+        remote_src: yes
+        creates: /usr/local/go
+
+    - name: download xcaddy
+      unarchive:
+        src: "https://github.com/caddyserver/xcaddy/releases/download/v{{ faasd_xcaddy_version }}/xcaddy_{{ faasd_xcaddy_version }}_linux_{{ faasd_caddy_suffix }}.tar.gz"
+        dest: /usr/local/bin
+        remote_src: yes
+        extra_opts:
+          - xcaddy
+        creates: /usr/local/bin/xcaddy
+
+    # - name: stop service
+    #   systemd:
+    #     name: caddy
+    #     state: stopped
+    #   when: xcaddy_build.changed
+
+    - name: build
+      include_tasks: caddy-build.yml
+    
+    # - name: replace old binary
+    #   command: "mv {{ faasd_caddy_build_output }} /usr/local/bin/caddy"
+    #   args:
+    #     removes: "{{ faasd_caddy_build_output }}"
+    #   when: xcaddy_build.changed
+
+    - name: update current caddy_version in custom facts
+      ini_file:
+        path: /etc/ansible/facts.d/faasd.fact
+        section: current
+        option: caddy_version
+        value: "{{ faasd_caddy_version }}"
+      notify:
+        - reload ansible_local
+
+  when: faasd_caddy_version is version(ansible_local['faasd']['current']['caddy_version'], '>')
+  # when: faasd_caddy_rebuild
+
+
+- name: configure caddyfile
+  template:
+    src: caddyfile.j2
+    dest: /etc/caddy/Caddyfile
+  register: caddy_config
+
+
+- name: configure caddy service
+  template:
+    src: caddy.service.j2
+    dest: /etc/systemd/system/caddy.service
+  register: caddy_service
+
+- name: chown
+  file:
+    dest: "{{ item }}"
+    recurse: yes
+    owner: "{{ faasd_caddy_user }}"
+    group: "{{ faasd_caddy_user }}"
+  loop:
+    - /etc/caddy
+    - /var/lib/caddy
+  
+- name: make sure caddy is (re)started and enabled
+  systemd:
+    name: caddy
+    state: restarted
+    daemon_reload: true
+    enabled: yes
+  when: caddy_service.changed or caddy_config.changed

@@ -1,0 +1,22 @@
+---
+# handlers file for faasd
+
+- name: restart caddy
+  service:
+    name: caddy
+    state: restarted
+
+- name: enable caddy
+  systemd:
+    name: caddy
+    enabled: yes
+    daemon_reload: yes
+
+
+- name: "reload ansible_local"
+  setup:
+    filter: "ansible_local"
+
+- name: wait for 5
+  pause:
+    seconds: 5

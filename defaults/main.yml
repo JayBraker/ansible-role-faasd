@@ -1,0 +1,16 @@
+---
+# defaults file for faasd
+
+faasd_home: /srv/faasd
+faasd_caddy_user: caddy
+
+faasd_xcaddy_version: "0.1.9"
+faasd_caddy_version: "2.4.3"
+faasd_caddy_rebuild: yes
+
+faasd_caddy_build_output: "/usr/local/bin/caddy"
+faasd_caddy_propagation: "/srv/caddy-loopia-propagation"
+faasd_caddy_resolvers: "ns1.loopia.se"
+
+faasd_cni_version: "0.8.5"
+faasd_containerd_version: "1.5.4"

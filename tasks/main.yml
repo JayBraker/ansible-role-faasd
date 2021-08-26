@@ -1,0 +1,66 @@
+---
+# tasks file for faasd
+
+- name: Print Architecture
+  debug: 
+    msg: 
+      - "Architecture:               {{ ansible_architecture }}"
+      - "Distribution:               {{ ansible_distribution }}"
+      - "Distribution Version:       {{ ansible_distribution_version }}"
+      - "Distribution Major Version: {{ ansible_distribution_major_version }}"
+      - "OS Family:                  {{ ansible_os_family }}"
+
+- name: Gather variables for each operating system
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+    - "{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+    - "{{ ansible_distribution | lower }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+
+- name: Gather variables for each architecture
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_architecture  | lower }}.yml"
+
+- name: Create directory for ansible custom facts
+  ansible.builtin.file:
+    state: directory
+    path: /etc/ansible/facts.d
+    mode: '0755'
+
+- name: default facts
+  copy:
+    src: faasd.fact
+    dest: /etc/ansible/facts.d/faasd.fact
+    force: no
+    mode: 0644
+  notify:
+    - reload ansible_local
+
+- name: allow forwarding
+  sysctl:
+    name: net.ipv4.conf.all.forwarding
+    value: 1
+    sysctl_set: yes
+    reload: yes
+
+- name: install cni_plugins
+  include_tasks: cni_plugins.yml
+
+- name: install containerd
+  include_tasks: containerd.yml
+
+- name: install faas-cli if not existing
+  shell: curl -sLS https://cli.openfaas.com | sh
+  args:
+    creates: /usr/local/bin/faas-cli
+
+- name: install faasd
+  include_tasks: faasd.yml
+
+- name: Caddy
+  include_tasks: caddy.yml
+  when: faasd_domain is defined and letsencrypt_email is defined
+

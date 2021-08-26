@@ -1,0 +1,32 @@
+---
+
+- name: create folder
+  ansible.builtin.file:
+    state: directory
+    path: /opt/cni/bin
+    mode: '0755'
+
+# - name: dowload cni plugin
+#   get_url:
+#     url: https://github.com/containernetworking/plugins/releases/download/${faasd_cni_version}/cni-plugins-linux-${faasd_cni_suffix}-${faasd_cni_version}.tgz
+#     dest: /tmp/cni.tgz
+#   when: faasd_cni_version is version(ansible_local['faasd']['current']['cni_version'], '>')
+
+- name: extract cni
+#        https://github.com/containernetworking/plugins/releases/download/v0.8.5/cni-plugins-linux-arm-v0.8.5.tgz
+  unarchive:
+    src: "https://github.com/containernetworking/plugins/releases/download/v{{ faasd_cni_version }}/cni-plugins-linux-{{ faasd_cni_suffix }}-v{{ faasd_cni_version }}.tgz"
+    dest: /opt/cni/bin 
+    remote_src: yes
+  when: faasd_cni_version is version(ansible_local['faasd']['current']['cni_version'], '>')
+
+- name: update current cni_version in custom facts
+  ini_file:
+    path: /etc/ansible/facts.d/faasd.fact
+    section: current
+    option: cni_version
+    value: "{{ faasd_cni_version }}"
+  notify:
+    - reload ansible_local
+  when: faasd_cni_version is version(ansible_local['faasd']['current']['cni_version'], '>')
+

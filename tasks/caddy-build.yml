@@ -1,0 +1,9 @@
+- name: build new version of caddy
+  shell:
+    cmd: "xcaddy build v{{ faasd_caddy_version }} --output {{ faasd_caddy_build_output }} --with github.com/caddy-dns/loopia"
+    chdir: "/tmp"
+  register: xcaddy_build
+  environment:
+    - PATH: "/bin:/usr/bin:/usr/local/bin:/usr/local/go/bin"
+
+- debug: var=xcaddy_build.stderr_lines

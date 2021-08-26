@@ -1,0 +1,32 @@
+- name: containerd
+  block:
+    - name: download containerd
+      unarchive:
+        src:  "https://github.com/alexellis/containerd-{{ faasd_containerd_suffix }}/releases/download/v{{ faasd_containerd_version }}/containerd-{{ faasd_containerd_version }}-linux-{{ faasd_containerd_suffix }}.tar.gz"
+        dest: /usr/local/bin
+        remote_src: yes
+        extra_opts: [--strip-components=1]
+
+    - name: download service file
+      get_url:
+        url: "https://raw.githubusercontent.com/containerd/containerd/v{{ faasd_containerd_version }}/containerd.service"
+        dest: /etc/systemd/system/containerd.service
+
+    - name: enable containerd
+      systemd:
+        name: containerd
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
+      notify: wait for 5
+    
+    - name: update current containerd_version in custom facts
+      ini_file:
+        path: /etc/ansible/facts.d/faasd.fact
+        section: current
+        option: containerd_version
+        value: "{{ faasd_containerd_version }}"
+      notify:
+        - reload ansible_local
+
+  when: faasd_containerd_version is version(ansible_local['faasd']['current']['containerd_version'], '>')

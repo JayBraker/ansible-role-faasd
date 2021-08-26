@@ -1,0 +1,44 @@
+---
+
+- name: Get latest release of a openfaas/faasd
+  uri:
+    url: https://api.github.com/repos/openfaas/faasd/releases/latest
+    return_content: true
+  register: release_result
+
+- name: Setting version fact
+  set_fact:
+    faasd_version: "{{ release_result.json.tag_name }}"
+
+- name: Display version information
+  debug:
+    msg: 
+      - "current={{ ansible_local['faasd']['current']['version'] }}"
+      - "latest={{ faasd_version }}"
+      - "should update? {{ faasd_version is version(ansible_local['faasd']['current']['version'], '>') }}"
+
+
+- name: install if needed
+  block:
+    - name: Install required dependencies
+      apt:
+        pkg:
+          - curl
+          - runc
+          - bridge-utils
+
+    - name: "download faasd {{ faasd_version }}"
+      get_url:
+        url: "https://github.com/openfaas/faasd/releases/download/{{ faasd_version }}/faasd-{{ faasd_faasd_suffix }}"
+        dest: /usr/local/bin/faasd
+        mode: '0755'
+
+    - name: update current version in custom facts
+      ini_file:
+        path: /etc/ansible/facts.d/faasd.fact
+        section: current
+        option: version
+        value: "{{ faasd_version }}"
+      notify:
+        - reload ansible_local
+  when: faasd_version is version(ansible_local['faasd']['current']['version'], '>')

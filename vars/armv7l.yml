@@ -1,0 +1,6 @@
+
+faasd_caddy_suffix: 'armv7'
+faasd_golang_suffix: 'armv6l'
+faasd_faasd_suffix: 'armhf'
+faasd_cni_suffix: 'arm'
+faasd_containerd_suffix: 'armhf'
