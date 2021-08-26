@@ -1,11 +1,21 @@
 - name: containerd
   block:
-    - name: download containerd
+    - name: download containerd for arm
       unarchive:
         src:  "https://github.com/alexellis/containerd-{{ faasd_containerd_suffix }}/releases/download/v{{ faasd_containerd_version }}/containerd-{{ faasd_containerd_version }}-linux-{{ faasd_containerd_suffix }}.tar.gz"
         dest: /usr/local/bin
         remote_src: yes
         extra_opts: [--strip-components=1]
+      when: faasd_containerd_suffix != 'amd64'
+
+    - name: download containerd for amd64
+      unarchive:
+        src:  "https://github.com/containerd/containerd/releases/download/v{{ faasd_containerd_version }}/containerd-{{ faasd_containerd_version }}-linux-amd64.tar.gz"
+        dest: /usr/local/bin
+        remote_src: yes
+        extra_opts: [--strip-components=1]
+      when: faasd_containerd_suffix == 'amd64'
+     
 
     - name: download service file
       get_url:
@@ -19,6 +29,7 @@
         enabled: yes
         daemon_reload: yes
       notify: wait for 5
+      tags: molecule-notest
     
     - name: update current containerd_version in custom facts
       ini_file:

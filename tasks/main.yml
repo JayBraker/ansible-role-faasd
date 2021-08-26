@@ -30,7 +30,7 @@
     path: /etc/ansible/facts.d
     mode: '0755'
 
-- name: default facts
+- name: default faasd.fact
   copy:
     src: faasd.fact
     dest: /etc/ansible/facts.d/faasd.fact
@@ -39,18 +39,35 @@
   notify:
     - reload ansible_local
 
+- name: "reload ansible_local"
+  setup:
+    filter: "ansible_local"
+
+- name: check faasd latest
+  include_tasks: faasd-version.yml
+
+- name: show versions
+  debug:
+    msg:
+    - "cni got {{ ansible_local['faasd']['current']['cni_version'] }}, wants {{ faasd_cni_version }} "
+    - "containerd got {{ ansible_local['faasd']['current']['containerd_version'] }}, wants {{ faasd_containerd_version }} "
+    - "faasd got {{ ansible_local['faasd']['current']['version'] }}, wants {{ faasd_version }} "
+
 - name: allow forwarding
   sysctl:
     name: net.ipv4.conf.all.forwarding
     value: 1
     sysctl_set: yes
     reload: yes
+  tags: molecule-notest
 
 - name: install cni_plugins
   include_tasks: cni_plugins.yml
+  when: faasd_cni_version is version(ansible_local['faasd']['current']['cni_version'], '>')
 
 - name: install containerd
   include_tasks: containerd.yml
+  when: faasd_containerd_version is version(ansible_local['faasd']['current']['containerd_version'], '>')
 
 - name: install faas-cli if not existing
   shell: curl -sLS https://cli.openfaas.com | sh
@@ -59,6 +76,7 @@
 
 - name: install faasd
   include_tasks: faasd.yml
+  when: faasd_version is version(ansible_local['faasd']['current']['version'], '>')
 
 - name: Caddy
   include_tasks: caddy.yml

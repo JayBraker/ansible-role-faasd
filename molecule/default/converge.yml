@@ -2,6 +2,6 @@
 - name: Converge
   hosts: all
   tasks:
-    - name: "Include faasd"
+    - name: "Include ansible-role-faasd"
       include_role:
-        name: "faasd"
+        name: "ansible-role-faasd"

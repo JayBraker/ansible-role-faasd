@@ -1,15 +1,5 @@
 ---
 
-- name: Get latest release of a openfaas/faasd
-  uri:
-    url: https://api.github.com/repos/openfaas/faasd/releases/latest
-    return_content: true
-  register: release_result
-
-- name: Setting version fact
-  set_fact:
-    faasd_version: "{{ release_result.json.tag_name }}"
-
 - name: Display version information
   debug:
     msg: 
@@ -26,10 +16,11 @@
           - curl
           - runc
           - bridge-utils
+      when: ansible_os_family == 'Debian'
 
     - name: "download faasd {{ faasd_version }}"
       get_url:
-        url: "https://github.com/openfaas/faasd/releases/download/{{ faasd_version }}/faasd-{{ faasd_faasd_suffix }}"
+        url: "https://github.com/openfaas/faasd/releases/download/{{ faasd_version }}/faasd{{ faasd_faasd_suffix }}"
         dest: /usr/local/bin/faasd
         mode: '0755'
 

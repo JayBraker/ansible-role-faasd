@@ -1,0 +1,10 @@
+---
+- name: Get latest release of a openfaas/faasd
+  uri:
+    url: https://api.github.com/repos/openfaas/faasd/releases/latest
+    return_content: true
+  register: release_result
+
+- name: Setting version fact
+  set_fact:
+    faasd_version: "{{ release_result.json.tag_name }}"
