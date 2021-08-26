@@ -1,7 +1,8 @@
-Role Name
+faasd
 =========
 
-A brief description of the role goes here.
+This is a role that install faasd almost like it would from the scripted version.
+https://github.com/openfaas/faasd
 
 Requirements
 ------------

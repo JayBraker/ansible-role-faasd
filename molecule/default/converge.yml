@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include faasd"
+      include_role:
+        name: "faasd"
