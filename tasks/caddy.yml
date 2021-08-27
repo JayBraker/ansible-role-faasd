@@ -1,10 +1,10 @@
 ---
-- name: create caddy group
+- name: "create group {{ faasd_caddy_user }}"
   ansible.builtin.group:
     system: yes
     name: "{{ faasd_caddy_user }}"
 
-- name: create caddy user
+- name: "create user {{ faasd_caddy_user }}"
   ansible.builtin.user:
     name: "{{ faasd_caddy_user }}"
     group: "{{ faasd_caddy_user }}"
@@ -41,20 +41,19 @@
           - xcaddy
         creates: /usr/local/bin/xcaddy
 
-    # - name: stop service
-    #   systemd:
-    #     name: caddy
-    #     state: stopped
-    #   when: xcaddy_build.changed
+    - name: build new version of caddy
+      shell:
+        cmd: >
+          xcaddy build v{{ faasd_caddy_version }} 
+          --output /usr/local/bin/caddy
+          --with github.com/caddy-dns/loopia
+        chdir: "/tmp"
+      register: xcaddy_build
+      environment:
+        - PATH: "/bin:/usr/bin:/usr/local/bin:/usr/local/go/bin"
 
-    - name: build
-      include_tasks: caddy-build.yml
-    
-    # - name: replace old binary
-    #   command: "mv {{ faasd_caddy_build_output }} /usr/local/bin/caddy"
-    #   args:
-    #     removes: "{{ faasd_caddy_build_output }}"
-    #   when: xcaddy_build.changed
+    - debug: var=xcaddy_build.stderr_lines
+      # when: xcaddy_build.rc != 0
 
     - name: update current caddy_version in custom facts
       ini_file:
@@ -66,7 +65,6 @@
         - reload ansible_local
 
   when: faasd_caddy_version is version(ansible_local['faasd']['current']['caddy_version'], '>')
-  # when: faasd_caddy_rebuild
 
 
 - name: configure caddyfile
@@ -74,7 +72,7 @@
     src: caddyfile.j2
     dest: /etc/caddy/Caddyfile
   register: caddy_config
-
+  when: not faasd_caddy_api
 
 - name: configure caddy service
   template:
@@ -98,4 +96,5 @@
     state: restarted
     daemon_reload: true
     enabled: yes
-  when: caddy_service.changed or caddy_config.changed
+  when: caddy_service.changed or caddy_config.changed and (faasd_domain is defined and letsencrypt_email is defined)
+  tags: molecule-notest

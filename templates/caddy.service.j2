@@ -1,17 +1,12 @@
-# caddy.service
-#
-# For using Caddy with a config file.
-#
-# Make sure the ExecStart and ExecReload commands are correct
-# for your installation.
-#
-# See https://caddyserver.com/docs/install for instructions.
-#
+# {{ ansible_managed }}
+
+{% if not faasd_caddy_api %}
 # WARNING: This service does not use the --resume flag, so if you
 # use the API to make changes, they will be overwritten by the
 # Caddyfile next time the service is restarted. If you intend to
 # use Caddy's API to configure it, add the --resume flag to the
 # `caddy run` command or use the caddy-api.service file instead.
+{% endif %}
 
 [Unit]
 Description=Caddy
@@ -23,8 +18,12 @@ Requires=network-online.target
 Type=notify
 User={{ faasd_caddy_user }}
 Group={{ faasd_caddy_user }}
+{% if faasd_caddy_api is defined and faasd_caddy_api %}
+ExecStart=/usr/local/bin/caddy run --environ --resume
+{% else %}
 ExecStart=/usr/local/bin/caddy run --environ --config /etc/caddy/Caddyfile
 ExecReload=/usr/local/bin/caddy reload --config /etc/caddy/Caddyfile
+{% endif %}
 TimeoutStopSec=5s
 LimitNOFILE=1048576
 LimitNPROC=512

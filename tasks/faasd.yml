@@ -1,35 +1,60 @@
 ---
+- name: Install required dependencies using apt
+  apt:
+    pkg:
+      - curl
+      - runc
+      - bridge-utils
+  when: ansible_os_family == 'Debian'
 
-- name: Display version information
-  debug:
-    msg: 
-      - "current={{ ansible_local['faasd']['current']['version'] }}"
-      - "latest={{ faasd_version }}"
-      - "should update? {{ faasd_version is version(ansible_local['faasd']['current']['version'], '>') }}"
+- name: Install required dependencies using yum
+  yum:
+    name:
+      - curl 
+      - runc
+  when: ansible_os_family == 'RedHat'
 
+- name: "download faasd {{ faasd_version }}"
+  get_url:
+    url: "https://github.com/openfaas/faasd/releases/download/{{ faasd_version }}/faasd{{ faasd_faasd_suffix }}"
+    dest: /usr/local/bin/faasd
+    mode: '0755'
 
-- name: install if needed
-  block:
-    - name: Install required dependencies
-      apt:
-        pkg:
-          - curl
-          - runc
-          - bridge-utils
-      when: ansible_os_family == 'Debian'
+- name: create installation config folder
+  file:
+    state: directory
+    path: /tmp/faasd-{{ faasd_version }}-installation/hack
 
-    - name: "download faasd {{ faasd_version }}"
-      get_url:
-        url: "https://github.com/openfaas/faasd/releases/download/{{ faasd_version }}/faasd{{ faasd_faasd_suffix }}"
-        dest: /usr/local/bin/faasd
-        mode: '0755'
+- name: download files
+  get_url:
+    url: "https://raw.githubusercontent.com/openfaas/faasd/{{ faasd_version }}/{{ item }}"
+    dest: "/tmp/faasd-{{ faasd_version }}-installation/{{ item }}"
+  with_items:
+    - "docker-compose.yaml"
+    - "prometheus.yml"
 
-    - name: update current version in custom facts
-      ini_file:
-        path: /etc/ansible/facts.d/faasd.fact
-        section: current
-        option: version
-        value: "{{ faasd_version }}"
-      notify:
-        - reload ansible_local
-  when: faasd_version is version(ansible_local['faasd']['current']['version'], '>')
+- name: service templates
+  template:
+    src: "{{ item }}.j2"
+    dest: "/tmp/faasd-{{ faasd_version }}-installation/hack/{{ item }}"
+  with_items:
+    - faasd-provider.service
+    - faasd.service
+
+- name: resolv template
+  template:
+    src: resolv.conf.j2
+    dest: "/tmp/faasd-{{ faasd_version }}-installation/resolv.conf"
+
+- name: run faasd install
+  shell: /usr/local/bin/faasd install
+  tags: molecule-notest
+
+- name: update current version in custom facts
+  ini_file:
+    path: /etc/ansible/facts.d/faasd.fact
+    section: current
+    option: version
+    value: "{{ faasd_version }}"
+  notify:
+    - reload ansible_local

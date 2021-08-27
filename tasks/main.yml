@@ -22,7 +22,7 @@
 - name: Gather variables for each architecture
   include_vars: "{{ item }}"
   with_first_found:
-    - "{{ ansible_architecture  | lower }}.yml"
+    - "arch_{{ ansible_architecture  | lower }}.yml"
 
 - name: Create directory for ansible custom facts
   ansible.builtin.file:
@@ -52,6 +52,7 @@
     - "cni got {{ ansible_local['faasd']['current']['cni_version'] }}, wants {{ faasd_cni_version }} "
     - "containerd got {{ ansible_local['faasd']['current']['containerd_version'] }}, wants {{ faasd_containerd_version }} "
     - "faasd got {{ ansible_local['faasd']['current']['version'] }}, wants {{ faasd_version }} "
+    - "change /etc/ansible/facts.d/faasd.fact if current versions isn't correct"
 
 - name: allow forwarding
   sysctl:
@@ -63,11 +64,11 @@
 
 - name: install cni_plugins
   include_tasks: cni_plugins.yml
-  when: faasd_cni_version is version(ansible_local['faasd']['current']['cni_version'], '>')
+  when: faasd_embed_cni_plugins and faasd_cni_version is version(ansible_local['faasd']['current']['cni_version'], '>')
 
 - name: install containerd
   include_tasks: containerd.yml
-  when: faasd_containerd_version is version(ansible_local['faasd']['current']['containerd_version'], '>')
+  when: faasd_embed_containerd and faasd_containerd_version is version(ansible_local['faasd']['current']['containerd_version'], '>')
 
 - name: install faas-cli if not existing
   shell: curl -sLS https://cli.openfaas.com | sh
@@ -80,5 +81,4 @@
 
 - name: Caddy
   include_tasks: caddy.yml
-  when: faasd_domain is defined and letsencrypt_email is defined
-
+  when: faasd_embed_caddy

@@ -12,17 +12,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        distro:
-          - centos8
-          - debian10
+        python-version: [3.7, 3.8]
+
     steps:
       - name: Check out the codebase.
         uses: actions/checkout@v2
+        with:
+          path: faasd
 
-      - name: Set up Python 3.
+      - name: Set up Python ${{ matrix.python-version }}.
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: ${{ matrix.python-version }}
 
       - name: Install test dependencies.
         run: |
@@ -34,6 +35,6 @@ jobs:
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
-          MOLECULE_DISTRO: ${{ matrix.distro }}
-        working-directory: molecule
+          # MOLECULE_DISTRO: ${{ matrix.distro }}
+        
 

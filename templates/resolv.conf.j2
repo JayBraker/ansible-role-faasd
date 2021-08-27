@@ -1,0 +1,4 @@
+nameserver {{ faasd_resolve_nameserver }}
+{% if faasd_resolve_search is defined and faasd_resolve_search %}
+search {{ faasd_resolve_search }}
+{% endif %}

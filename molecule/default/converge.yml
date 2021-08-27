@@ -4,4 +4,4 @@
   tasks:
     - name: "Include ansible-role-faasd"
       include_role:
-        name: "ansible-role-faasd"
+        name: "faasd"
