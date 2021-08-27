@@ -5,7 +5,10 @@
   hosts: all
   gather_facts: false
   tasks: 
-    - name: caddy- stat Caddyfile 
+    - name: faasd - faasd-provider.service
+      lineinfile:
+        name: "/tmp"
+    - name: caddy - stat Caddyfile 
       stat:
         path: /etc/caddy/Caddyfile
       register: stat_result

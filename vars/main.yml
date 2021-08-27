@@ -1,3 +1,6 @@
 ---
 # vars file for faasd
 
+faasd_wd: /var/lib/faasd
+faasd_provider_wd: /var/lib/faasd-provider
+faasd_secrets: "{{ faasd_wd }}/secrets"

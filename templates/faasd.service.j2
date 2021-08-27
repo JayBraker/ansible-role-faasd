@@ -8,7 +8,7 @@ MemoryLimit=500M
 ExecStart=/usr/local/bin/faasd up
 Restart=on-failure
 RestartSec=10s
-WorkingDirectory=\{\{.Cwd\}\}
+WorkingDirectory={{ faasd_wd }}
 
 [Install]
 WantedBy=multi-user.target

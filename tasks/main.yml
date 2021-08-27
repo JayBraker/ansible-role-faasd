@@ -75,10 +75,17 @@
   args:
     creates: /usr/local/bin/faas-cli
 
-- name: install faasd
+- name: faasd binary
   include_tasks: faasd.yml
   when: faasd_version is version(ansible_local['faasd']['current']['version'], '>')
 
+- name: faasd configuration
+  include_tasks: faasd-config.yml
+  
+
+# sudo cat /var/lib/faasd/secrets/basic-auth-password ;echo
+#  sudo journalctl -u faasd --lines 100 -f
+# sudo cat /var/lib/faasd/secrets/basic-auth-password | faas-cli login -s
 - name: Caddy
   include_tasks: caddy.yml
   when: faasd_embed_caddy

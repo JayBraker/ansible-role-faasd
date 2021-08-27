@@ -4,12 +4,12 @@ Description=faasd-provider
 
 [Service]
 MemoryLimit=500M
-Environment="secret_mount_path=\{\{.SecretMountPath\}\}"
+Environment="secret_mount_path={{ faasd_secrets }}"
 Environment="basic_auth=true"
 ExecStart=/usr/local/bin/faasd provider
 Restart=on-failure
 RestartSec=10s
-WorkingDirectory=\{\{.Cwd\}\}
+WorkingDirectory={{ faasd_provider_wd }}
 
 [Install]
 WantedBy=multi-user.target

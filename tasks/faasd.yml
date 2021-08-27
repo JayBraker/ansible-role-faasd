@@ -20,36 +20,6 @@
     dest: /usr/local/bin/faasd
     mode: '0755'
 
-- name: create installation config folder
-  file:
-    state: directory
-    path: /tmp/faasd-{{ faasd_version }}-installation/hack
-
-- name: download files
-  get_url:
-    url: "https://raw.githubusercontent.com/openfaas/faasd/{{ faasd_version }}/{{ item }}"
-    dest: "/tmp/faasd-{{ faasd_version }}-installation/{{ item }}"
-  with_items:
-    - "docker-compose.yaml"
-    - "prometheus.yml"
-
-- name: service templates
-  template:
-    src: "{{ item }}.j2"
-    dest: "/tmp/faasd-{{ faasd_version }}-installation/hack/{{ item }}"
-  with_items:
-    - faasd-provider.service
-    - faasd.service
-
-- name: resolv template
-  template:
-    src: resolv.conf.j2
-    dest: "/tmp/faasd-{{ faasd_version }}-installation/resolv.conf"
-
-- name: run faasd install
-  shell: /usr/local/bin/faasd install
-  tags: molecule-notest
-
 - name: update current version in custom facts
   ini_file:
     path: /etc/ansible/facts.d/faasd.fact

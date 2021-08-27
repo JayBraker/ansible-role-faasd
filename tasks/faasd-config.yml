@@ -1,0 +1,67 @@
+
+
+- name: ensure working directories
+  file:
+    state: directory
+    path: "{{ item }}"
+    mode: '0644'
+  with_items:
+    - "{{ faasd_secrets }}"
+    - "{{ faasd_wd }}"
+    - "{{ faasd_provider_wd }}"
+
+- name: docker-compose config
+  template:
+    src: docker-compose.yaml.j2
+    dest: "{{ faasd_wd }}/docker-compose.conf"
+  register: docker_config
+
+- name: prometheus config
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ faasd_wd }}/prometheus.yml"
+  register: prometheus_config
+
+- name: resolv template
+  template:
+    src: resolv.conf.j2
+    dest: "{{ faasd_wd }}/resolv.conf"
+
+- name: faasd-provider service templates
+  template:
+    src: faasd-provider.service.j2
+    dest: "/etc/systemd/system/faasd-provider.service"
+  register: faasd_provider_service
+
+- name: faasd service templates
+  template:
+    src: faasd.service.j2
+    dest: "/etc/systemd/system/faasd.service"
+  register: faasd_service
+
+- name: services, if needed
+  block:
+    - name: reload systemd
+      systemd:
+        daemon_reload: true
+        
+    - name: stop all
+      systemd:
+        name: "{{ item }}"
+        state: stopped
+      with_items:
+        - faasd
+        - faasd-provider
+
+    - name: enable and start
+      systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      with_items:
+        - faasd-provider
+        - faasd
+        
+  tags: molecule-notest
+  when: faasd_service.changed or faasd_provider_service.changed
+
