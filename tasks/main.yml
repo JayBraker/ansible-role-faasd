@@ -72,8 +72,14 @@
 
 - name: install faas-cli if not existing
   shell: curl -sLS https://cli.openfaas.com | sh
+  register: cli_install
   args:
     creates: /usr/local/bin/faas-cli
+
+- debug: var=cli_install.stderr_lines
+
+- debug: var=cli_install.stdout_lines
+
 
 - name: faasd binary
   include_tasks: faasd.yml
