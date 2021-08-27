@@ -85,8 +85,6 @@
   shell: ls -la /usr/local/bin
   register: listfiles
 
-- debug: var=listfiles
-
 - name: install faas-cli if not existing
   shell: curl -sLS https://cli.openfaas.com | sh
   args:
