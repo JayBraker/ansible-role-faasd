@@ -1,6 +1,8 @@
 ---
 - name: Converge
   hosts: all
+  vars:
+    - faasd_embed_caddy: no
   tasks:
     - name: "Include ansible-role-faasd"
       include_role:

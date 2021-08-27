@@ -3,17 +3,24 @@
 
 - name: Verify
   hosts: all
+  vars: 
+    - faasd_embed_caddy: no
   gather_facts: false
   tasks: 
     - name: faasd - faasd-provider.service
       lineinfile:
         name: "/tmp"
+      when: faasd_embed_caddy
+    
     - name: caddy - stat Caddyfile 
       stat:
         path: /etc/caddy/Caddyfile
       register: stat_result
+      when: faasd_embed_caddy
+    
     - name: caddy - check caddyfile exists
       assert:
         that:
           - stat_result.stat.exists
+      when: faasd_embed_caddy
       
