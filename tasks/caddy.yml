@@ -98,3 +98,18 @@
     enabled: yes
   when: caddy_service.changed or caddy_config.changed and (faasd_domain is defined and letsencrypt_email is defined)
   tags: molecule-notest
+
+
+
+- name: which config
+  debug: 
+    var: faasd_caddy_config
+
+- name: configure caddy using API
+  uri: 
+    url: "{{ faasd_caddy_apibase }}/"
+    method: POST
+    body: "{{ faasd_caddy_config }}"
+    status_code: 200
+    body_format: json
+  when: faasd_caddy_api

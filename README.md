@@ -30,6 +30,27 @@ Including an example of how to use your role (for instance, with variables passe
       roles:
          - { role: username.rolename, x: 42 }
 
+
+Notes
+-----
+
+If you decide to use the embedded caddy server and want to access over https 
+but still on localhost (on the remote machine), then you might want to install 
+caddys root CA or ignore the otherwise invalid certificate.
+
+```shell
+# this should work on a Raspberry Pi
+sudo cp /var/lib/caddy/pki/authorities/local/root.crt /usr/local/share/ca-certificates/caddy.crt
+sudo chmod 644 /usr/local/share/ca-certificates/caddy.crt
+sudo update-ca-certificates
+
+# if you use curl and want to ignore the cert then.
+curl -k https://localhost/ui/
+```
+
+
+
+
 License
 -------
 

@@ -18,6 +18,8 @@ Requires=network-online.target
 Type=notify
 User={{ faasd_caddy_user }}
 Group={{ faasd_caddy_user }}
+Environment="XDG_DATA_HOME=/var/lib"
+Environment="XDG_CONFIG_HOME=/var/lib"
 {% if faasd_caddy_api is defined and faasd_caddy_api %}
 ExecStart=/usr/local/bin/caddy run --environ --resume
 {% else %}
