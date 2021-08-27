@@ -1,0 +1,11 @@
+{
+    "auths": {
+    {% for entry in faasd_auths %}
+    "{{ entry.server }}": {
+            "email": "{{ entry.email }}",
+            "auth": "{{ entry.auth }}"
+        }{% if loop.revindex0 != 0 %},{% endif %}
+    {% endfor %}
+
+    }
+}
