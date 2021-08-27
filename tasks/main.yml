@@ -70,17 +70,6 @@
   include_tasks: containerd.yml
   when: faasd_embed_containerd and faasd_containerd_version is version(ansible_local['faasd']['current']['containerd_version'], '>')
 
-- name: install faas-cli if not existing
-  shell: curl -sLS https://cli.openfaas.com | sh
-  register: cli_install
-  args:
-    creates: /usr/local/bin/faas-cli
-
-- debug: var=cli_install.stderr_lines
-
-- debug: var=cli_install.stdout_lines
-
-
 - name: faasd binary
   include_tasks: faasd.yml
   when: faasd_version is version(ansible_local['faasd']['current']['version'], '>')
@@ -88,10 +77,24 @@
 - name: faasd configuration
   include_tasks: faasd-config.yml
   
+- name: Caddy
+  include_tasks: caddy.yml
+  when: faasd_embed_caddy
+
+- name: list files
+  shell: ls -la /usr/local/bin
+  register: listfiles
+
+- debug: var=listfiles
+
+- name: install faas-cli if not existing
+  shell: curl -sLS https://cli.openfaas.com | sh
+  args:
+    creates: /usr/local/bin/faas-cli
+  register: cli_install
+
+- debug: var=cli_install
 
 # sudo cat /var/lib/faasd/secrets/basic-auth-password ;echo
 #  sudo journalctl -u faasd --lines 100 -f
 # sudo cat /var/lib/faasd/secrets/basic-auth-password | faas-cli login -s
-- name: Caddy
-  include_tasks: caddy.yml
-  when: faasd_embed_caddy
