@@ -81,9 +81,6 @@
   include_tasks: caddy.yml
   when: faasd_embed_caddy
 
-- name: list files
-  shell: ls -la /usr/local/bin
-  register: listfiles
 
 - name: install faas-cli if not existing
   shell: curl -sLS https://cli.openfaas.com | sh
