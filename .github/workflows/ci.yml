@@ -32,7 +32,7 @@ jobs:
           python3 -m pip install -r faasd/requirements.txt
 
       - name: Run Molecule tests.
-        run: molecule test
+        run: cd faasd && molecule test
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'

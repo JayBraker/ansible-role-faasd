@@ -63,7 +63,6 @@
         value: "{{ faasd_caddy_version }}"
       notify:
         - reload ansible_local
-
   when: faasd_caddy_version is version(ansible_local['faasd']['current']['caddy_version'], '>')
 
 
@@ -99,11 +98,9 @@
   when: caddy_service.changed or caddy_config.changed and (faasd_domain is defined and letsencrypt_email is defined)
   tags: molecule-notest
 
-
-
-- name: which config
-  debug: 
-    var: faasd_caddy_config
+# - name: which config
+#   debug: 
+#     var: faasd_caddy_config
 
 - name: configure caddy using API
   uri: 
@@ -113,3 +110,4 @@
     status_code: 200
     body_format: json
   when: faasd_caddy_api
+  tags: molecule-notest
