@@ -13,7 +13,7 @@
 - name: docker-compose config
   template:
     src: docker-compose.yaml.j2
-    dest: "{{ faasd_wd }}/docker-compose.conf"
+    dest: "{{ faasd_wd }}/docker-compose.yaml"
   register: docker_config
 
 - name: prometheus config
@@ -59,9 +59,9 @@
         state: started
         enabled: yes
       with_items:
-        - faasd-provider
         - faasd
+        - faasd-provider
         
   tags: molecule-notest
-  when: faasd_service.changed or faasd_provider_service.changed
+  when: faasd_service.changed or faasd_provider_service.changed or docker_config.changed
 
