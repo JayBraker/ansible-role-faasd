@@ -3,11 +3,11 @@ reverse_proxy 127.0.0.1:8080
 tls {
 	issuer acme {
 		email "{{ letsencrypt_email }}"
-		propagation_timeout "15m0s"
+		propagation_timeout "30m0s"
 		dns loopia {
 			username "{{ loopia_username }}"
 			password "{{ loopia_password }}"
 		}
-		resolvers "{{ faasd_caddy_resolvers }}" !important
+		resolvers "{{ faasd_caddy_resolvers }}"
 	}
 }
