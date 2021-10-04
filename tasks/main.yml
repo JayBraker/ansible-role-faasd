@@ -70,7 +70,7 @@
   when: faasd_embed_containerd and faasd_containerd_version is version(ansible_local['faasd']['current']['containerd_version'], '>')
 
 - name: faasd binary
-  include_tasks: faasd.yml
+  include_tasks: faasd-binary.yml
   when: faasd_version is version(ansible_local['faasd']['current']['version'], '>')
 
 - name: faasd configuration
