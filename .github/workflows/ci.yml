@@ -6,36 +6,72 @@ name: CI
     branches:
       - main
 
+defaults:
+  run:
+    working-directory: 'kmpm.faasd'
+
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+        with:
+          path: 'kmpm.faasd'
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install test dependencies.
+        run: pip3 install yamllint ansible-lint
+
+      - name: Lint code.
+        run: |
+          yamllint .
+
   test:
     name: Molecule
     runs-on: ubuntu-latest
+     continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
-        python-version: [3.8]
+        distro:
+          - ubuntu2004
+          - debian10
+        scenario:
+          - default
+        experimental: [false]
 
     steps:
       - name: Check out the codebase.
         uses: actions/checkout@v2
         with:
-          path: faasd
+          path: 'kmpm.faasd'
 
-      - name: Set up Python ${{ matrix.python-version }}.
+
+      - name: Set up Python 3.x.
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.x'
 
       - name: Install test dependencies.
         run: |
           ls -la
           python3 -m pip install --upgrade pip
           python3 -m pip install wheel
-          python3 -m pip install -r faasd/requirements.txt
+          python3 -m pip install -r requirements.txt
 
       - name: Run Molecule tests.
-        run: cd faasd && molecule test
+        run: |
+          echo $MOLECULE_DISTRO
+          echo $MOLECULE_SCENARIO_NAME
+          molecule test -s ${{ matrix.scenario }}
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
-          # MOLECULE_DISTRO: ${{ matrix.distro }}
+          MOLECULE_DISTRO: ${{ matrix.distro }}
+          MOLECULE_SCENARIO_NAME: ${{ matrix.scenario }}
         
