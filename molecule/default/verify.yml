@@ -7,9 +7,9 @@
     - faasd_embed_caddy: no
   gather_facts: false
   tasks: 
-    - name: faasd - faasd-provider.service
-      lineinfile:
-        name: "/tmp"
+    # - name: faasd - faasd-provider.service
+    #   lineinfile:
+    #     name: "/tmp"
     
     - name: fact - stat factfile
       stat:
