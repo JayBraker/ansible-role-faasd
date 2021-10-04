@@ -3,6 +3,8 @@
 
 - name: Verify
   hosts: all
+  vars: 
+    - faasd_embed_caddy: no
   gather_facts: false
   tasks: 
     - name: faasd - faasd-provider.service
@@ -18,4 +20,4 @@
       assert:
         that:
           - stat_fact.stat.exists
-      
+
