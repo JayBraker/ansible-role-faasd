@@ -4,13 +4,12 @@ dependency:
 driver:
   name: docker
 platforms:
-  - name: centos8
-    image: docker.io/pycontribs/centos:8
-    pre_build_image: true
-  - name: debian10
-    image: geerlingguy/docker-debian10-ansible
+  - name: "${MOLECULE_DISTRO:-debian11}"
+    image: geerlingguy/docker-${MOLECULE_DISTRO:-debian11}-ansible:latest
     pre_build_image: true
 provisioner:
   name: ansible
+  playbooks:
+    converge: ${MOLECULE_PLAYBOOK:-converge.yml}
 verifier:
   name: ansible
