@@ -1,5 +1,3 @@
-faasd_caddy_suffix: 'amd64'
-faasd_golang_suffix: 'amd64'
 faasd_faasd_suffix: ''
 faasd_cni_suffix: 'amd64'
 faasd_containerd_suffix: 'amd64'

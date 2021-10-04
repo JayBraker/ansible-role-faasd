@@ -2,4 +2,3 @@
 version = 0.0.0
 cni_version = 0.0.0
 containerd_version = 0.0.0
-caddy_version = 0.0.0
