@@ -70,7 +70,7 @@
   tags: molecule-notest
   when: faasd_service.changed or faasd_provider_service.changed or docker_config.changed
 
-- name: configure authentication for private repos
+- name: configure authentication for private registry
   block:
     - name: faasd - create .docker folder
       file:
@@ -83,5 +83,7 @@
         src: docker.conf.j2
         dest: /var/lib/faasd/.docker/config.json
         mode: '0644'
+      notify: restart containerd
+      
   when: faasd_auths is defined and faasd_auths
   

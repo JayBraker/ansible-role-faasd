@@ -8,3 +8,10 @@
 - name: wait for 5
   pause:
     seconds: 5
+
+
+- name: restart containerd
+  systemd:
+    name: containerd
+    state: restarted
+  tags: molecule-notest
