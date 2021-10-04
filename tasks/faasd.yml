@@ -27,5 +27,6 @@
     section: current
     option: version
     value: "{{ faasd_version }}"
+    mode: '0644'
   notify:
     - reload ansible_local

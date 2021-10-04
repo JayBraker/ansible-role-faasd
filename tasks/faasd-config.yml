@@ -1,4 +1,4 @@
-
+---
 
 - name: ensure working directories
   file:
@@ -14,29 +14,34 @@
   template:
     src: docker-compose.yaml.j2
     dest: "{{ faasd_wd }}/docker-compose.yaml"
+    mode: '0644'
   register: docker_config
 
 - name: prometheus config
   template:
     src: prometheus.yml.j2
     dest: "{{ faasd_wd }}/prometheus.yml"
+    mode: '0644'
   register: prometheus_config
 
 - name: resolv template
   template:
     src: resolv.conf.j2
     dest: "{{ faasd_wd }}/resolv.conf"
+    mode: '755'
 
 - name: faasd-provider service templates
   template:
     src: faasd-provider.service.j2
     dest: "/etc/systemd/system/faasd-provider.service"
+    mode: '0644'
   register: faasd_provider_service
 
 - name: faasd service templates
   template:
     src: faasd.service.j2
     dest: "/etc/systemd/system/faasd.service"
+    mode: '0644'
   register: faasd_service
 
 - name: services, if needed
@@ -71,6 +76,7 @@
       file:
         state: directory
         path: /var/lib/faasd/.docker
+        mode: '0755'
 
     - name: fassd - generate .docker/config.json
       template: 

@@ -1,5 +1,4 @@
 ---
-
 - name: create folder
   ansible.builtin.file:
     state: directory
@@ -26,7 +25,7 @@
     section: current
     option: cni_version
     value: "{{ faasd_cni_version }}"
+    mode: '0755'
   notify:
     - reload ansible_local
   when: faasd_cni_version is version(ansible_local['faasd']['current']['cni_version'], '>')
-

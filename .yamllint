@@ -31,3 +31,8 @@ rules:
     type: unix
   trailing-spaces: disable
   truthy: disable
+
+ignore: |
+  .github/stale.yml
+  .travis.yml
+  venv/

@@ -37,6 +37,7 @@
         section: current
         option: containerd_version
         value: "{{ faasd_containerd_version }}"
+        mode: '0755'
       notify:
         - reload ansible_local
 

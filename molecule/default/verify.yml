@@ -20,4 +20,3 @@
       assert:
         that:
           - stat_fact.stat.exists
-
