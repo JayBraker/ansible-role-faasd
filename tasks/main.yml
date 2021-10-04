@@ -78,7 +78,7 @@
   
 
 - name: install faas-cli if not existing
-  shell: set -o pipefail && curl -sLS https://cli.openfaas.com | sh
+  shell: curl -sLS https://cli.openfaas.com | sh
   args:
     creates: /usr/local/bin/faas-cli
   register: cli_install
