@@ -35,7 +35,7 @@ jobs:
   test:
     name: Molecule
     runs-on: ubuntu-latest
-     continue-on-error: ${{ matrix.experimental }}
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
         distro:
