@@ -6,5 +6,5 @@ faasd_resolve_nameserver: 8.8.8.8
 faasd_embed_containerd: yes
 faasd_embed_cni_plugins: yes
 
-faasd_cni_version: "0.8.5"
-faasd_containerd_version: "1.5.4"
+faasd_cni_version: "0.9.1"
+faasd_containerd_version: "1.7.0"
